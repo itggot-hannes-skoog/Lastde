@@ -1,16 +1,15 @@
-#subwrapper
-	#subcontent
-		h1
-			form action="/l/#{@sub.id}/post/new"
-				input type="submit" value="write post"
-		.posts
-			- for post in @posts
-				.post
-					a href="/l/#{@sub.id}/post/#{post.uuid}"
-						h1= post.title
-					.post-info
-						p= post.timestamp
-						span
-							i class="material-icons" face
-							h3= post.author
-	==slim :'sub/sidebar'
+#subcontent
+	h1
+		form action="/l/#{@sub.id}/post/new"
+			input type="submit" value="write post"
+	.posts
+		- for post in @posts
+			.post
+				a href="/l/#{@sub.id}/post/#{post.uuid}"
+					h1= post.title
+				.post-info
+					p= post.timestamp
+					span
+						i class="material-icons" face
+						h3= post.author
+==slim :'sub/sidebar'

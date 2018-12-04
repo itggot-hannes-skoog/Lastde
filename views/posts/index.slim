@@ -1,2 +1,11 @@
-h1= @post.title
-p= @post.textbody
+#post-content
+    .post
+        a href="/l/#{@post.sub_id}"= @post.sub_name
+        h1= @post.title
+        h3= @post.author
+        h4= @post.timestamp
+        p= @post.textbody
+    .comments
+        / - for comment in @comments
+        /     .comment
+==slim :'common/sidebar'

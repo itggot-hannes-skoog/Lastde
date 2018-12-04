@@ -1,5 +1,4 @@
 main
-	h1 hejhopp
 	.posts
 		- for post in @posts
 			.post
@@ -12,3 +11,4 @@ main
 						h3= post.author
 					a href="/l/#{post.sub_id}"
 						h4= post.sub_name
+==slim :'common/sidebar'

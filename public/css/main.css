@@ -2,6 +2,14 @@
     margin: 0;
 }
 
+#wrapper {
+    margin: 0;
+    height: 100%;
+    display: grid;
+    grid-template-columns: 1fr 20vw;
+    grid-template-areas: "main side"
+}
+
 #page-header{
     width: 100%;
     height: 90px;
@@ -17,11 +25,6 @@
     color: white;
 }
 
-#subwrapper {
-    display: grid;
-    grid-template-columns: 1fr 20vw;
-    grid-template-areas: "main info"
-}
 
 #subcontent {
     grid-area: main;
@@ -29,18 +32,33 @@
     flex-direction: column;
 }
 
-#subinfo {
-    grid-area: info;
-}
-
-.post {
+.posts .post {
     width: 100%;
     height: 80px;
-    background: red;
+    background: grey;
     display: flex;
     flex-direction: row;
     box-sizing: border-box;
     padding: 1rem;
+    margin: 1rem 0;
+}
+
+#sidebar {
+    grid-area: side;
+    box-sizing: border-box;
+    margin: 1rem;
+    padding: 1rem;
+    border: dotted black 2px;
+    height: 500px;
+}
+
+#sidebar .user {
+    height: 100px;
+}
+#sidebar .user img {
+    object-fit: contain;
+    width: 100%;
+    height: 100%;
 }
 
 .post-info span h3 {
@@ -59,4 +77,8 @@
 #new-post textarea {
     resize: none;
     margin: 1rem;
+}
+
+#post-content .post {
+    background: grey;
 }

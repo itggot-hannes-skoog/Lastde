@@ -1,17 +1,24 @@
+#models = Dir.glob('/models/*.rb')
+#models.each { |model| require_relative model }
+
 require_relative "models/sub"
-require_relative "models/posts"
-require_relative "models/common"
-require_relative "models/users"
+require_relative "models/post"
+require_relative "models/user"
 
 class App < Sinatra::Base
   enable :sessions
 
-  get "/" do
+  before do
     if session[:user_id]
       @current_user = Users.get(session[:user_id])
-      @posts = Posts.startpage_get(@current_user)
+    end
+  end
+
+  get "/" do
+    if @current_user
+      @posts = Post.get({type: "startpage", user: @current_user})
     else
-      @posts = Posts.get_all()
+      @posts = Post.get({type: "startpage"})
     end
 
     slim :'startpage/index'
@@ -22,7 +29,7 @@ class App < Sinatra::Base
   end
 
   post "/register" do
-    Common.register(params)
+    User.register(params)
     redirect "/"
   end
 
@@ -30,8 +37,8 @@ class App < Sinatra::Base
     username = params["username"]
     db = SQLite3::Database.new "database.db"
     user = db.execute("SELECT id, password
-							FROM users
-              WHERE username = ?", username).first
+                        FROM users
+                        WHERE username = ?", username).first
     if user == nil
       @info = "Incorrect username!"
       redirect "/"
@@ -53,49 +60,29 @@ class App < Sinatra::Base
   end
 
   get "/l/new" do
-    if session[:user_id]
-      @current_user = Users.get(session[:user_id])
-    end
-
     slim :'sub/new'
   end
 
   get "/l/:id" do
-    if session[:user_id]
-      @current_user = Users.get(session[:user_id])
-    end
-
     id = params["id"]
 
     @sub = Sub.get(id, @current_user)
-    @posts = Posts.get_sub(id)
+    @posts = Post.get({type: "sub", sub_id: id})
     slim :'sub/index'
   end
 
   get "/l/:id/post/new" do
-    if session[:user_id]
-      @current_user = Users.get(session[:user_id])
-    end
-
     @id = params["id"]
     slim :'posts/new'
   end
 
   post "/l/:id/post/new" do
-    if session[:user_id]
-      @current_user = Users.get(session[:user_id])
-    end
-
-    Posts.new_post(params, @current_user)
+    Post.new_post(params, @current_user)
     redirect "/l/#{params["id"]}"
   end
 
   get "/l/:id/post/:uuid" do
-    if session[:user_id]
-      @current_user = Users.get(session[:user_id])
-    end
-
-    @post = Posts.get(params)
+    @post = Post.get({type: "post", sub_id: params["id"], uuid: params["uuid"]})
     slim :"posts/index"
   end
 
@@ -104,14 +91,14 @@ class App < Sinatra::Base
   end
 
   post "/l/:id/subscribe" do
-    user = Users.get(session[:user_id])
+    user = @current_user
     id = params["id"]
     Sub.subscribe(id, user)
     redirect back
   end
 
   post "/l/:id/unsubscribe" do
-    user = Users.get(session[:user_id])
+    user = @current_user
     id = params["id"]
     Sub.unsubscribe(id, user)
     redirect back

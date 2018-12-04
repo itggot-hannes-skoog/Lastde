@@ -1,0 +1,10 @@
+-if @current_user
+	aside#sidebar_info
+		.user
+			h2= @current_user.uname
+			img src="/img/#{@current_user.img}.jpg" alt="profile picture"
+-else
+	aside#sidebar_info
+		.register-btn
+			form action="/register" method="get"
+				input type="submit" value="Register" name="register"

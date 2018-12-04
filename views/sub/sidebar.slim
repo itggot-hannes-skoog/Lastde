@@ -1,17 +1,17 @@
--if @current_user
-	aside#subinfo
-		h1.subname= @sub.name.upcase
-		h2= @sub.regdate
-		-if @sub.subscribed
-			form action="/l/#{@sub.id}/unsubscribe" method="post"
-				button type="submit" Unsubscribe
-		-else
-			form action="/l/#{@sub.id}/subscribe" method="post"
-				button type="submit" Subscribe
--else
-	aside#subinfo
-		h1.subname= @sub.name.upcase
-		h2= @sub.regdate
-		.register-btn
-			form action="/register" method="get"
-				input type="submit" value="Register" name="register"
+#sidebar
+	-if @current_user
+		aside#subinfo
+			h1.subname= @sub.name.upcase
+			h2= @sub.regdate
+			-if @sub.subscribed
+				form action="/l/#{@sub.id}/unsubscribe" method="post"
+					button type="submit" Unsubscribe
+			-else
+				form action="/l/#{@sub.id}/subscribe" method="post"
+					button type="submit" Subscribe
+	-else
+		aside#subinfo
+			h1.subname= @sub.name.upcase
+			h2= @sub.regdate
+
+	== slim :"common/sidebar_info"
