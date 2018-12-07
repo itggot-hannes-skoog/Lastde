@@ -22,11 +22,14 @@ class Post
                             FROM posts
                             JOIN subs ON posts.sub_id = subs.ID
                             JOIN user_subs ON posts.sub_id = user_subs.sub_id
-                            WHERE user_subs.user_id = ?",
+                            WHERE user_subs.user_id = ?
+                            ORDER BY dateTime(timestamp)
+                            DESC",
                            user.id)
       else
         posts = db.execute("SELECT posts.*, subs.name
-                            AS sub_name from posts 
+                            AS sub_name
+                            FROM posts 
                             JOIN subs 
                             ON posts.sub_id = subs.ID
                             ORDER BY dateTime(timestamp)
@@ -35,18 +38,28 @@ class Post
     elsif data[:type] == "sub"
       id = data[:sub_id]
       posts = db.execute("SELECT posts.*, subs.name 
-                          AS sub_name from posts 
+                          AS sub_name 
+                          FROM posts 
                           JOIN subs 
                           ON posts.sub_id = subs.ID 
                           WHERE sub_id = ?
                           ORDER BY dateTime(timestamp)
                           DESC",
                          id)
+    elsif data[:type] == "user"
+      uname = data[:user]
+      posts = db.execute("SELECT *
+                            FROM posts
+                            WHERE posts.author = ?
+                            ORDER BY dateTime(timestamp)
+                            DESC",
+                         uname)
     elsif data[:type] == "post"
       id = data[:sub_id]
       uuid = data[:uuid]
       post = db.execute("SELECT posts.*, subs.name 
-                          AS sub_name from posts 
+                          AS sub_name
+                          FROM posts 
                           JOIN subs 
                           ON posts.sub_id = subs.ID 
                           WHERE sub_id = ?

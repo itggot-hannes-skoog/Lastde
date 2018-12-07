@@ -6,6 +6,17 @@
         h4= @post.timestamp
         p= @post.textbody
     .comments
-        / - for comment in @comments
-        /     .comment
+        - if @current_user
+            form#new-comment action="/l/#{@post.sub_id}/#{@post.uuid}/newcomment" method="post"
+                textarea.text required=true name="textbody" form="new-comment"
+                button type="submit" Post
+        - else
+            form#new-comment action="/l/#{@post.sub_id}/#{@post.uuid}/newcomment" method="post"
+                textarea.text disabled=true form="new-comment" placeholder="Please register to post comments"
+                button disabled=true type="submit" Post
+        - for comment in @comments
+            .comment
+                p= comment.textbody
+                h4= comment.timestamp
+                h4= comment.author
 ==slim :'common/sidebar'

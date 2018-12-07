@@ -9,36 +9,41 @@ class Sub
     @subscribed = data[4]
   end
 
-  def self.get(id, user)
-    id.to_i
+  def self.get(data)
+    user = data[:user]
     db = SQLite3::Database.new "database.db"
-    data = db.execute("	SELECT *
-                        FROM subs
-                        WHERE id = ?",
-                      id).first
-    if user != nil
-      subs = db.execute("	SELECT *
-                          FROM user_subs
-                          WHERE user_id = ?
-                          AND sub_id = ?",
-                        user.id, id)
-      if !subs.empty?
-        data.push(true)
+    if data[:type] == "header"
+      if user
+        subs = db.execute("SELECT subs.*
+                            FROM subs
+                            JOIN user_subs ON user_subs.sub_id = subs.id
+                            WHERE user_subs.user_id = ?",
+                          user.id)
       else
-        data.push(false)
+        subs = db.execute("SELECT * FROM subs")
       end
+    elsif data[:type] == "sub"
+      id = data[:id].to_i
+      db = SQLite3::Database.new "database.db"
+      subs = db.execute("SELECT *
+                          FROM subs
+                          WHERE id = ?",
+                        id).first
+      if user != nil
+        subscribed = db.execute("SELECT *
+                            FROM user_subs
+                            WHERE user_id = ?
+                            AND sub_id = ?",
+                                user.id, id)
+        if !subscribed.empty?
+          subs.push(true)
+        else
+          subs.push(false)
+        end
+      end
+      return Sub.new(subs)
     end
-    Sub.new(data)
-  end
-
-  def self.auth(data)
-    pwd = data[0]
-    id = data[1]
-    db = SQLite3::Database.new "database.db"
-    pwd = db.execute("SELECT pwd
-                      FROM subs
-                      WHERE id = ?",
-                     id).first
+    subs.map { |sub| Sub.new(sub) }
   end
 
   def self.new_sub(data)

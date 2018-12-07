@@ -1,4 +1,4 @@
-class Users
+class User
   attr_reader :id, :uname, :email, :img, :regdate, :level, :role
 
   def initialize(data)
@@ -12,14 +12,22 @@ class Users
     @role = data[7]
   end
 
-  def self.get(id)
-    id.to_i
+  def self.get(data)
     db = SQLite3::Database.new "database.db"
-    user = db.execute("	SELECT *
-                        FROM users
-                        WHERE id = ?",
-                      id).first
-    Users.new(user)
+    if data[:id]
+      id = data[:id].to_i
+      user = db.execute("SELECT *
+                          FROM users
+                          WHERE id = ?",
+                        id).first
+    elsif data[:uname]
+      uname = data[:uname]
+      user = db.execute("SELECT *
+                          FROM users
+                          WHERE username = ?",
+                        uname).first
+    end
+    User.new(user)
   end
 
   def self.register(data)

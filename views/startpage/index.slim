@@ -6,9 +6,10 @@ main
 					h1= post.title
 				.post-info
 					p= post.timestamp
-					span
-						i class="material-icons" face
-						h3= post.author
+					a href="/u/#{post.author}"
+						span
+							i class="material-icons" face
+							h3= post.author
 					a href="/l/#{post.sub_id}"
 						h4= post.sub_name
 ==slim :'common/sidebar'

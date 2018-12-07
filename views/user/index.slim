@@ -1,0 +1,27 @@
+#user
+    h2= @user.uname
+    h3= @user.regdate
+    img src="/img/#{@user.img}.jpg" alt="profile picture"
+    .posts
+        h1 Posts
+		- for post in @posts
+			.post
+				a href="/l/#{post.sub_id}/post/#{post.uuid}"
+					h1= post.title
+				.post-info
+					p= post.timestamp
+					span
+						i class="material-icons" face
+						h3= post.author
+					a href="/l/#{post.sub_id}"
+						h4= post.sub_name
+    .comments
+        h1 Comments
+		- for comment in @comments
+			.comment
+                p= comment.textbody
+                h4= comment.timestamp
+                span
+                    h3= comment.author
+
+== slim :"common/sidebar"

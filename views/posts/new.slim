@@ -1,7 +1,7 @@
 .newpost
-    form action='/l/#{@id}/post/new' method='post' enctype='multipart/form-data' id="new-post"
+    form#new-post action='/l/#{@id}/post/new' method='post' enctype='multipart/form-data'
         label for="title" Title:
         input type="text" required=true name="title" id="title"
         label for="text" Text:
-        textarea required=true name="textbody" form="new-post" id="text"
+        textarea.text required=true name="textbody" form="new-post"
         button type="submit" Post

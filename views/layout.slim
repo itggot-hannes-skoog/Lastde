@@ -9,22 +9,6 @@ html
 		link rel="stylesheet" type="text/css" href="/css/icon.css"
 	body
 		header#page-header
-			a href="/"
-				h1.pagetitle Lästde
-			-if @current_user
-				.logout
-					h4= @current_user.uname
-					form action="/logout" method="post"
-						button type="submit" Log Out
-			-else
-				.login
-					form action='/login' method='post'
-						input type="text" name="username"
-						input type="password" name="pwd"
-						button type="submit" Log In
-				.register-btn
-					form action="/register" method="get"
-						input type="submit" value="Register" name="register"
+			== slim :"common/header"
 		#wrapper
 			== yield
-		

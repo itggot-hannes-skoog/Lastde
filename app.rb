@@ -1,8 +1,9 @@
-#models = Dir.glob('/models/*.rb')
+#models = Dir.glob('models/*.rb')
 #models.each { |model| require_relative model }
 
 require_relative "models/sub"
 require_relative "models/post"
+require_relative "models/comment"
 require_relative "models/user"
 
 class App < Sinatra::Base
@@ -10,7 +11,10 @@ class App < Sinatra::Base
 
   before do
     if session[:user_id]
-      @current_user = Users.get(session[:user_id])
+      @current_user = User.get({id: session[:user_id]})
+      @subs = Sub.get({type: "header", user: @current_user})
+    else
+      @subs = Sub.get({type: "header"})
     end
   end
 
@@ -25,7 +29,7 @@ class App < Sinatra::Base
   end
 
   get "/register" do
-    slim :'common/register'
+    slim :'user/register'
   end
 
   post "/register" do
@@ -65,8 +69,8 @@ class App < Sinatra::Base
 
   get "/l/:id" do
     id = params["id"]
-
-    @sub = Sub.get(id, @current_user)
+    p id
+    @sub = Sub.get({type: "sub", id: id, user: @current_user})
     @posts = Post.get({type: "sub", sub_id: id})
     slim :'sub/index'
   end
@@ -83,6 +87,7 @@ class App < Sinatra::Base
 
   get "/l/:id/post/:uuid" do
     @post = Post.get({type: "post", sub_id: params["id"], uuid: params["uuid"]})
+    @comments = Comment.get({type: "post", uuid: params["uuid"]})
     slim :"posts/index"
   end
 
@@ -102,5 +107,18 @@ class App < Sinatra::Base
     id = params["id"]
     Sub.unsubscribe(id, user)
     redirect back
+  end
+
+  post "/l/:id/:uuid/newcomment" do
+    p params
+    Comment.new_comment(params, @current_user)
+    redirect back
+  end
+
+  get "/u/:uname" do
+    @user = User.get({uname: params["uname"]})
+    @posts = Post.get({type: "user", user: params["uname"]})
+    @comments = Comment.get({type: "user", user: params["uname"]})
+    slim :"user/index"
   end
 end

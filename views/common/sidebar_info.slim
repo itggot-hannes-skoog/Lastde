@@ -1,10 +1,18 @@
--if @current_user
-	aside#sidebar_info
+aside#sidebar_info
+
+	-if @current_user
 		.user
 			h2= @current_user.uname
 			img src="/img/#{@current_user.img}.jpg" alt="profile picture"
--else
-	aside#sidebar_info
+		.logout
+			form action="/logout" method="post"
+				button type="submit" Log Out
+	-else
+		.login
+			form action='/login' method='post'
+				input type="text" name="username"
+				input type="password" name="pwd"
+				button type="submit" Log In
 		.register-btn
 			form action="/register" method="get"
 				input type="submit" value="Register" name="register"

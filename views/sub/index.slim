@@ -1,7 +1,10 @@
 #subcontent
-	h1
+	- if @current_user
 		form action="/l/#{@sub.id}/post/new"
-			input type="submit" value="write post"
+			input type="submit" value="Write post"
+	- else
+		form action="/l/#{@sub.id}/post/new"
+			input disabled=true type="submit" value="Register to write posts"
 	.posts
 		- for post in @posts
 			.post
@@ -9,7 +12,8 @@
 					h1= post.title
 				.post-info
 					p= post.timestamp
-					span
-						i class="material-icons" face
-						h3= post.author
+					a href="/u/#{post.author}"
+						span
+							i class="material-icons" face
+							h3= post.author
 ==slim :'sub/sidebar'
