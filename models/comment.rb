@@ -1,5 +1,5 @@
 class Comment
-  attr_reader :textbody, :timestamp, :uuid, :author
+  attr_reader :id, :textbody, :timestamp, :uuid, :author, :upvotes, :downvotes
 
   def initialize(data)
     @id = data[0]
@@ -7,6 +7,8 @@ class Comment
     @timestamp = data[2]
     @uuid = data[3]
     @author = data[4]
+    @upvotes = data[5]
+    @downvotes = data[6]
   end
 
   def self.get(data)
@@ -19,7 +21,7 @@ class Comment
                             uuid)
       comments.map { |comment| Comment.new(comment) }
     elsif data[:type] == "user"
-      uname = data[:user]
+      uname = data[:username]
       comments = db.execute("SELECT *
                               FROM comments
                               WHERE author = ?",
@@ -28,15 +30,13 @@ class Comment
     end
   end
 
-  def self.new_comment(data, user)
-    textbody = data["textbody"]
+  def self.new_comment(data)
     timestamp = Time.now.strftime("%Y-%m-%d %H:%M")
-    post_uuid = data["uuid"]
-    author = user.uname
+    author = data[:user].uname
     db = SQLite3::Database.new "database.db"
     db.execute("INSERT INTO comments
-                    (textbody, timestamp, post_uuid, author)
-                    VALUES (?, ?, ?, ?)
-                    ", [textbody, timestamp, post_uuid, author])
+                    (textbody, timestamp, post_uuid, author, upvotes, downvotes)
+                    VALUES (?, ?, ?, ?, 1, 0)
+                    ", [data[:textbody], timestamp, data[:post_uuid], author])
   end
 end

@@ -8,7 +8,26 @@
 	.posts
 		- for post in @posts
 			.post
-				a href="/l/#{@sub.id}/post/#{post.uuid}"
+				-if @current_user
+					.vote
+						.votes
+							span= post.upvotes
+							span= post.downvotes
+						form action="/l/#{post.uuid}/vote" method="post"
+							-if !post.upvoted
+								button name='upvote' type="submit" Up
+							-else
+								button class="voted" name='removeupvote' type="submit" Up
+							-if !post.downvoted
+								button name='downvote' type="submit" Down
+							-else
+								button class="voted" name='removedownvote' type="submit" Down
+				-else
+					.vote
+						.votes
+							span= post.upvotes
+							span= post.downvotes
+				a href="/l/#{@sub.id}/#{post.uuid}"
 					h1= post.title
 				.post-info
 					p= post.timestamp

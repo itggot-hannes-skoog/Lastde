@@ -1,8 +1,9 @@
 aside#sidebar_info
-
+    == styled_flash
 	-if @current_user
 		.user
-			h2= @current_user.uname
+			a href="/u/#{@current_user.uname}"
+				h2= @current_user.uname
 			img src="/img/#{@current_user.img}.jpg" alt="profile picture"
 		.logout
 			form action="/logout" method="post"

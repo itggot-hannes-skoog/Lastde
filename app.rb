@@ -8,10 +8,11 @@ require_relative "models/user"
 
 class App < Sinatra::Base
   enable :sessions
+  register Sinatra::Flash
 
   before do
     if session[:user_id]
-      @current_user = User.get({id: session[:user_id]})
+      @current_user = User.get({type: "session", id: session[:user_id]})
       @subs = Sub.get({type: "header", user: @current_user})
     else
       @subs = Sub.get({type: "header"})
@@ -34,26 +35,21 @@ class App < Sinatra::Base
 
   post "/register" do
     User.register(params)
+    result = User.login({username: params["username"], password: params["pwd"]})
+    session[:user_id] = result[:user][0]
+    @current_user = result[:user]
+    flash[:success] = "Registration successful!"
     redirect "/"
   end
 
   post "/login" do
-    username = params["username"]
-    db = SQLite3::Database.new "database.db"
-    user = db.execute("SELECT id, password
-                        FROM users
-                        WHERE username = ?", username).first
-    if user == nil
-      @info = "Incorrect username!"
-      redirect "/"
-    end
-    hashed_pwd = BCrypt::Password.new(user[1])
-    if hashed_pwd == params["pwd"]
-      @info = "Logged in"
-      session[:user_id] = user[0]
-      @current_user = user
+    result = User.login({username: params["username"], password: params["pwd"]})
+    if result[:loggedin]
+      session[:user_id] = result[:user][0]
+      @current_user = result[:user]
+      flash[:success] = "Login successful!"
     else
-      @info = "Incorrect password!"
+      flash[:error] = "Incorrect login credentials!"
     end
     redirect back
   end
@@ -69,9 +65,8 @@ class App < Sinatra::Base
 
   get "/l/:id" do
     id = params["id"]
-    p id
     @sub = Sub.get({type: "sub", id: id, user: @current_user})
-    @posts = Post.get({type: "sub", sub_id: id})
+    @posts = Post.get({type: "sub", sub_id: id, user: @current_user})
     slim :'sub/index'
   end
 
@@ -81,44 +76,60 @@ class App < Sinatra::Base
   end
 
   post "/l/:id/post/new" do
-    Post.new_post(params, @current_user)
+    Post.new_post({title: params["title"], textbody: params["textbody"], sub_id: params["id"], user: @current_user})
     redirect "/l/#{params["id"]}"
   end
 
-  get "/l/:id/post/:uuid" do
-    @post = Post.get({type: "post", sub_id: params["id"], uuid: params["uuid"]})
+  get "/l/:id/:uuid" do
+    @post = Post.get({type: "post", user: @current_user, sub_id: params["id"], uuid: params["uuid"]})
     @comments = Comment.get({type: "post", uuid: params["uuid"]})
+    @post = @post.first
     slim :"posts/index"
   end
 
+  post "/l/:uuid/vote" do
+    if params["upvote"]
+      vote = "upvote"
+    elsif params["downvote"]
+      vote = "downvote"
+    elsif params["removeupvote"]
+      vote = "removeupvote"
+    elsif params["removedownvote"]
+      vote = "removedownvote"
+    end
+    Post.vote({type: vote, uuid: params["uuid"], user: @current_user})
+    redirect back
+  end
+
   post "/l/new" do
-    Sub.new_sub(params)
+    Sub.new_sub({name: params["name"]})
+    redirect back
   end
 
   post "/l/:id/subscribe" do
-    user = @current_user
-    id = params["id"]
-    Sub.subscribe(id, user)
+    Sub.subscribe({id: params["id"], user: @current_user})
     redirect back
   end
 
   post "/l/:id/unsubscribe" do
-    user = @current_user
-    id = params["id"]
-    Sub.unsubscribe(id, user)
+    Sub.unsubscribe({id: params["id"], user: @current_user})
     redirect back
   end
 
   post "/l/:id/:uuid/newcomment" do
-    p params
-    Comment.new_comment(params, @current_user)
+    Comment.new_comment({textbody: params["textbody"], post_uuid: params["uuid"], user: @current_user})
     redirect back
   end
 
+  post "/l/:id/:uuid/comment/:comment_id/vote" do
+    vote = params["upvote"] ? "upvote" : "downvote"
+    Comment.vote({type: vote, user: @current_user, comment_id: params[comment_id]})
+  end
+
   get "/u/:uname" do
-    @user = User.get({uname: params["uname"]})
-    @posts = Post.get({type: "user", user: params["uname"]})
-    @comments = Comment.get({type: "user", user: params["uname"]})
+    @user = User.get({type: "userpage", username: params["uname"]})
+    @posts = Post.get({type: "user", username: params["uname"]})
+    @comments = Comment.get({type: "user", username: params["uname"]})
     slim :"user/index"
   end
 end

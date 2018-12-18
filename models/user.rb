@@ -14,14 +14,14 @@ class User
 
   def self.get(data)
     db = SQLite3::Database.new "database.db"
-    if data[:id]
+    if data[:type] == "session"
       id = data[:id].to_i
       user = db.execute("SELECT *
                           FROM users
                           WHERE id = ?",
                         id).first
-    elsif data[:uname]
-      uname = data[:uname]
+    elsif data[:type] == "userpage"
+      uname = data[:username]
       user = db.execute("SELECT *
                           FROM users
                           WHERE username = ?",
@@ -30,14 +30,29 @@ class User
     User.new(user)
   end
 
+  def self.login(data)
+    db = SQLite3::Database.new "database.db"
+    user = db.execute("SELECT id, password
+                        FROM users
+                        WHERE username = ?", data[:username]).first
+    if user == nil
+      return {loggedin: false}
+    end
+    hashed_pwd = BCrypt::Password.new(user[1])
+    if hashed_pwd == data[:password]
+      return {loggedin: true, user: user}
+    else
+      return {loggedin: false}
+    end
+  end
+
   def self.register(data)
     username = data["username"]
     email = data["email"]
     date = Time.now.strftime("%Y-%m-%d")
     pwd = BCrypt::Password.create(data["pwd"])
     uuid = SecureRandom.uuid
-    p data["file"]
-    if data["file"] != []
+    if data["file"]
       tempfile = data["file"][:tempfile]
       filename = data["file"][:filename]
       FileUtils.copy(tempfile.path, "./public/img/#{filename}")

@@ -17,10 +17,13 @@ class Sub
         subs = db.execute("SELECT subs.*
                             FROM subs
                             JOIN user_subs ON user_subs.sub_id = subs.id
-                            WHERE user_subs.user_id = ?",
+                            WHERE user_subs.user_id = ?
+                            ORDER BY subs.name",
                           user.id)
       else
-        subs = db.execute("SELECT * FROM subs")
+        subs = db.execute("SELECT *
+                            FROM subs
+                            ORDER BY subs.name")
       end
     elsif data[:type] == "sub"
       id = data[:id].to_i
@@ -47,30 +50,28 @@ class Sub
   end
 
   def self.new_sub(data)
-    name = data["name"]
     date = Time.now.strftime("%Y-%m-%d")
-    pwd = BCrypt::Password.create(data["pwd"])
     db = SQLite3::Database.new "database.db"
     db.execute("INSERT 
-                INTO subs (name, regdate, password)
-                VALUES (?, ?, ?)
-                ", [name, date, pwd])
+                INTO subs (name, regdate)
+                VALUES (?, ?)
+                ", [data[:name], date])
   end
 
-  def self.subscribe(id, user)
+  def self.subscribe(data)
     db = SQLite3::Database.new "database.db"
     db.execute("INSERT 
                 INTO user_subs (user_id, sub_id)
                 VALUES (?, ?)
-                ", [user.id, id])
+                ", [data[:user].id, data[:id]])
   end
 
-  def self.unsubscribe(id, user)
+  def self.unsubscribe(data)
     db = SQLite3::Database.new "database.db"
     db.execute("DELETE
                 FROM user_subs
                 WHERE user_id = ?
                 AND sub_id = ?
-                ", [user.id, id])
+                ", [data[:user].id, data[:id]])
   end
 end

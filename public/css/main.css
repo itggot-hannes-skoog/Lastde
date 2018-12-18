@@ -96,3 +96,33 @@
     box-sizing: border-box;
     padding: 1rem;
 }
+
+.vote {
+    display: flex;
+}
+
+.vote form {
+    display: flex;
+    flex-direction: column;
+}
+
+.vote .votes {
+    display: flex;
+    flex-direction: column;
+}
+
+.voted {
+    background: red;
+}
+
+.error{
+    background:#F2DEDE;
+    color:#B94A48;
+    border:1px solid #EED3D7;
+}
+
+.success{
+    background:#DFF0D8;
+    color:#468847;
+    border:1px solid #D6E9C6;
+  }
