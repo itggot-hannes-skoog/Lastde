@@ -19,35 +19,41 @@
                 .votes
                     span= @post.upvotes
                     span= @post.downvotes
-        a href="/l/#{@post.sub_id}"= @post.sub_name
+        a href="/l/#{@post.sub_name}"= @post.sub_name
         h1= @post.title
         h3= @post.author
         h4= @post.timestamp
         p= @post.textbody
     .comments
         - if @current_user
-            form#new-comment action="/l/#{@post.sub_id}/#{@post.uuid}/newcomment" method="post"
+            form#new-comment action="/l/#{@post.sub_name}/#{@post.uuid}/newcomment" method="post"
                 textarea.text required=true name="textbody" form="new-comment"
                 button type="submit" Post
         - else
-            form#new-comment action="/l/#{@post.sub_id}/#{@post.uuid}/newcomment" method="post"
+            form#new-comment action="/l/#{@post.sub_name}/#{@post.uuid}/newcomment" method="post"
                 textarea.text disabled=true form="new-comment" placeholder="Please register to post comments"
                 button disabled=true type="submit" Post
         - for comment in @comments
             .comment
-				-if @current_user
-					.vote
-						.votes
-							span= comment.upvotes
-							span= comment.downvotes
-						form action="/l/#{comment.uuid}/comment/#{comment.id}/vote" method="post"
-							button name='upvote' type="submit" Up
-							button name='downvote' type="submit" Down
-				-else
-					.vote
-						.votes
-							span= comment.upvotes
-							span= comment.downvotes
+                -if @current_user
+                    .vote
+                        .votes
+                            span= comment.upvotes
+                            span= comment.downvotes
+                        form action="/l/#{comment.uuid}/comment/#{comment.id}/vote" method="post"
+                            -if !comment.upvoted
+                                button name='upvote' type="submit" Up
+                            -else
+                                button class="voted" name='removeupvote' type="submit" Up
+                            -if !comment.downvoted
+                                button name='downvote' type="submit" Down
+                            -else
+                                button class="voted" name='removedownvote' type="submit" Down
+                -else
+                    .vote
+                        .votes
+                            span= comment.upvotes
+                            span= comment.downvotes
                 p= comment.textbody
                 h4= comment.timestamp
                 h4= comment.author

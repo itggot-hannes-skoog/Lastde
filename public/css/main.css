@@ -50,6 +50,23 @@
     margin: 1rem 0;
 }
 
+.post-info {
+    display: flex;
+    flex-direction: row;
+}
+
+.post-info span {
+    margin: 0 1rem;
+}
+
+.post-info p {
+    margin: 0 1rem;
+}
+
+.post-info a {
+    margin: 0 1rem;
+}
+
 #sidebar {
     grid-area: side;
     box-sizing: border-box;
@@ -125,4 +142,17 @@
     background:#DFF0D8;
     color:#468847;
     border:1px solid #D6E9C6;
-  }
+}
+
+.register form {
+    display: flex;
+    flex-direction: column;
+}
+
+.register form label {
+    margin: 1rem;
+}
+
+.register form input {
+    margin: 0 1rem;
+}

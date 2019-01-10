@@ -4,10 +4,10 @@
 			h1.subname= @sub.name.upcase
 			h2= @sub.regdate
 			-if @sub.subscribed
-				form action="/l/#{@sub.id}/unsubscribe" method="post"
+				form action="/l/#{@sub.name}/unsubscribe" method="post"
 					button type="submit" Unsubscribe
 			-else
-				form action="/l/#{@sub.id}/subscribe" method="post"
+				form action="/l/#{@sub.name}/subscribe" method="post"
 					button type="submit" Subscribe
 	-else
 		aside#subinfo

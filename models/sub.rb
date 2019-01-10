@@ -26,18 +26,19 @@ class Sub
                             ORDER BY subs.name")
       end
     elsif data[:type] == "sub"
-      id = data[:id].to_i
+      name = data[:name]
       db = SQLite3::Database.new "database.db"
       subs = db.execute("SELECT *
                           FROM subs
-                          WHERE id = ?",
-                        id).first
+                          WHERE name = ?",
+                        name).first
       if user != nil
+        sub_id = db.execute("SELECT id FROM subs WHERE name = ?", name).first
         subscribed = db.execute("SELECT *
-                            FROM user_subs
-                            WHERE user_id = ?
-                            AND sub_id = ?",
-                                user.id, id)
+                                  FROM user_subs
+                                  WHERE user_id = ?
+                                  AND sub_id = ?",
+                                user.id, sub_id)
         if !subscribed.empty?
           subs.push(true)
         else
@@ -60,18 +61,23 @@ class Sub
 
   def self.subscribe(data)
     db = SQLite3::Database.new "database.db"
+    name = data[:name]
+    id = db.execute("SELECT id FROM subs WHERE name = ?", name).first
+    p name
     db.execute("INSERT 
                 INTO user_subs (user_id, sub_id)
                 VALUES (?, ?)
-                ", [data[:user].id, data[:id]])
+                ", [data[:user].id, id])
   end
 
   def self.unsubscribe(data)
     db = SQLite3::Database.new "database.db"
+    name = data[:sub_name]
+    id = db.execute("SELECT id FROM subs WHERE name = ?", name).first
     db.execute("DELETE
                 FROM user_subs
                 WHERE user_id = ?
                 AND sub_id = ?
-                ", [data[:user].id, data[:id]])
+                ", [data[:user].id, id])
   end
 end

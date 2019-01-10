@@ -2,7 +2,6 @@ class Post
   attr_reader :id, :title, :textbody, :timestamp, :sub_id, :uuid, :sub_name, :author, :upvotes, :downvotes, :comments, :upvoted, :downvoted
 
   def initialize(data)
-    p data
     @id = data[0]
     @title = data[1]
     @textbody = data[2]
@@ -21,6 +20,8 @@ class Post
 
   def self.get(data)
     db = SQLite3::Database.new "database.db"
+    name = data[:sub_name]
+    id = db.execute("SELECT id FROM subs WHERE name = ?", name).first
     if data[:type] == "startpage"
       if data[:user]
         user = data[:user]
@@ -42,8 +43,7 @@ class Post
                             DESC")
       end
     elsif data[:type] == "sub"
-      id = data[:sub_id]
-      posts = db.execute("SELECT posts.*, subs.name 
+      posts = db.execute("SELECT posts.*, subs.name
                           AS sub_name 
                           FROM posts 
                           JOIN subs 
@@ -54,14 +54,15 @@ class Post
                          id)
     elsif data[:type] == "user"
       uname = data[:username]
-      posts = db.execute("SELECT *
+      posts = db.execute("SELECT posts.*, subs.name
                           FROM posts
+                          JOIN subs 
+                          ON posts.sub_id = subs.ID
                           WHERE posts.author = ?
                           ORDER BY dateTime(timestamp)
                           DESC",
                          uname)
     elsif data[:type] == "post"
-      id = data[:sub_id]
       uuid = data[:uuid]
       posts = db.execute("SELECT posts.*, subs.name 
                           AS sub_name
@@ -114,11 +115,13 @@ class Post
     uuid = SecureRandom.urlsafe_base64(8, false)
     img = ""
     user = data[:user]
+    name = data[:sub_name]
+    id = db.execute("SELECT id FROM subs WHERE name = ?", name).first
     db = SQLite3::Database.new "database.db"
     db.execute("INSERT INTO posts
                 (title, textbody, timestamp, sub_id, uuid, author, upvotes, downvotes)
                 VALUES (?, ?, ?, ?, ?, ?, 1, 0)
-                ", [data[:title], data[:textbody], timestamp, data[:sub_id], uuid, user.uname])
+                ", [data[:title], data[:textbody], timestamp, id, uuid, user.uname])
 
     db.execute("INSERT INTO user_upvotes
                 (user_id, post_uuid)

@@ -56,6 +56,7 @@ class App < Sinatra::Base
 
   post "/logout" do
     session.destroy
+    flash[:success] = "Logout successful!"
     redirect back
   end
 
@@ -63,25 +64,25 @@ class App < Sinatra::Base
     slim :'sub/new'
   end
 
-  get "/l/:id" do
-    id = params["id"]
-    @sub = Sub.get({type: "sub", id: id, user: @current_user})
-    @posts = Post.get({type: "sub", sub_id: id, user: @current_user})
+  get "/l/:name" do
+    name = params["name"]
+    @sub = Sub.get({type: "sub", name: name, user: @current_user})
+    @posts = Post.get({type: "sub", sub_name: name, user: @current_user})
     slim :'sub/index'
   end
 
-  get "/l/:id/post/new" do
-    @id = params["id"]
+  get "/l/:name/post/new" do
+    @name = params["name"]
     slim :'posts/new'
   end
 
-  post "/l/:id/post/new" do
-    Post.new_post({title: params["title"], textbody: params["textbody"], sub_id: params["id"], user: @current_user})
-    redirect "/l/#{params["id"]}"
+  post "/l/:name/post/new" do
+    Post.new_post({title: params["title"], textbody: params["textbody"], sub_name: params["name"], user: @current_user})
+    redirect "/l/#{params["name"]}"
   end
 
-  get "/l/:id/:uuid" do
-    @post = Post.get({type: "post", user: @current_user, sub_id: params["id"], uuid: params["uuid"]})
+  get "/l/:name/:uuid" do
+    @post = Post.get({type: "post", user: @current_user, sub_name: params["name"], uuid: params["uuid"]})
     @comments = Comment.get({type: "post", uuid: params["uuid"]})
     @post = @post.first
     slim :"posts/index"
@@ -102,28 +103,39 @@ class App < Sinatra::Base
   end
 
   post "/l/new" do
-    Sub.new_sub({name: params["name"]})
+    chars = ("a".."z").to_a + ("A".."Z").to_a + (0..9).to_a + ["-", "_"]
+    p params["name"]
+    if !params["name"].chars.detect { |ch| !chars.include?(ch) }.nil?
+      flash[:error] = "Illegal subname, non alphanumeric characters!"
+      redirect back
+    elsif params["name"].size > 20
+      flash[:error] = "Illegal subname, too long!"
+      redirect back
+    else
+      Sub.new_sub({name: params["name"]})
+      redirect "/l/1"
+    end
+  end
+
+  post "/l/:name/subscribe" do
+    Sub.subscribe({name: params["name"], user: @current_user})
     redirect back
   end
 
-  post "/l/:id/subscribe" do
-    Sub.subscribe({id: params["id"], user: @current_user})
+  post "/l/:name/unsubscribe" do
+    Sub.unsubscribe({name: params["name"], user: @current_user})
     redirect back
   end
 
-  post "/l/:id/unsubscribe" do
-    Sub.unsubscribe({id: params["id"], user: @current_user})
-    redirect back
-  end
-
-  post "/l/:id/:uuid/newcomment" do
+  post "/l/:name/:uuid/newcomment" do
     Comment.new_comment({textbody: params["textbody"], post_uuid: params["uuid"], user: @current_user})
     redirect back
   end
 
-  post "/l/:id/:uuid/comment/:comment_id/vote" do
+  post "/l/:uuid/comment/:comment_id/vote" do
     vote = params["upvote"] ? "upvote" : "downvote"
-    Comment.vote({type: vote, user: @current_user, comment_id: params[comment_id]})
+    Comment.vote({type: vote, user: @current_user, comment_id: params["comment_id"]})
+    redirect back
   end
 
   get "/u/:uname" do

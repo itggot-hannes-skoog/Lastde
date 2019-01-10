@@ -19,14 +19,14 @@
 						.votes
 							span= post.upvotes
 							span= post.downvotes
-				a href="/l/#{post.sub_id}/#{post.uuid}"
+				a href="/l/#{post.sub_name}/#{post.uuid}"
 					h1= post.title
 				.post-info
 					p= post.timestamp
 					span
 						i class="material-icons" face
 						h3= post.author
-					a href="/l/#{post.sub_id}"
+					a href="/l/#{post.sub_name}"
 						h4= post.sub_name
     .comments
         h1 Comments
