@@ -1,5 +1,8 @@
-class User
-  attr_reader :id, :uname, :email, :img, :regdate, :level, :role
+class User < Model
+  attr_reader :id, :uname, :email, :img, :regdate, :level, :role, :mods
+  attr_accessor :mod
+
+  table_name "users"
 
   def initialize(data)
     @id = data[0]
@@ -10,24 +13,18 @@ class User
     @level = data[5]
     @password = data[6]
     @role = data[7]
+    @mod = false
+    @mods = data[8]
   end
 
-  def self.get(data)
+  def self.get_mod(data)
     db = SQLite3::Database.new "database.db"
-    if data[:type] == "session"
-      id = data[:id].to_i
-      user = db.execute("SELECT *
-                          FROM users
-                          WHERE id = ?",
-                        id).first
-    elsif data[:type] == "userpage"
-      uname = data[:username]
-      user = db.execute("SELECT *
-                          FROM users
-                          WHERE username = ?",
-                        uname).first
-    end
-    User.new(user)
+    db.execute("SELECT user_memberships.sub_name
+                FROM user_memberships
+                JOIN users ON user_memberships.user_id = users.id
+                WHERE user_memberships.user_id = ?
+                AND mod = ?",
+               id, "true")
   end
 
   def self.login(data)
@@ -36,13 +33,13 @@ class User
                         FROM users
                         WHERE username = ?", data[:username]).first
     if user == nil
-      return {loggedin: false}
+      return {loggedin: false, error: "username"}
     end
     hashed_pwd = BCrypt::Password.new(user[1])
     if hashed_pwd == data[:password]
       return {loggedin: true, user: user}
     else
-      return {loggedin: false}
+      return {loggedin: false, error: "pwd"}
     end
   end
 

@@ -1,9 +1,9 @@
 #subcontent
 	- if @current_user
-		form action="/l/#{@sub.name}/post/new"
+		form action="/l/#{@sub[0].name}/post/new"
 			input type="submit" value="Write post"
 	- else
-		form action="/l/#{@sub.name}/post/new"
+		form action="/l/#{@sub[0].name}/post/new"
 			input disabled=true type="submit" value="Register to write posts"
 	.posts
 		- for post in @posts
@@ -27,12 +27,20 @@
 						.votes
 							span= post.upvotes
 							span= post.downvotes
-				a href="/l/#{@sub.name}/#{post.uuid}"
+				a href="/l/#{@sub[0].name}/#{post.uuid}"
 					h1= post.title
 				.post-info
+					span
+						i class="material-icons" comment
+						h3= post.comments
 					p= post.timestamp
 					a href="/u/#{post.author}"
 						span
 							i class="material-icons" face
 							h3= post.author
+					- if @current_user
+						- if @current_user.uname == post.author || @current_user.mod
+								form action="/l/#{post.sub_name}/#{post.uuid}/delete" method="post"
+									button type="submit"
+										i class="material-icons" delete
 ==slim :'sub/sidebar'

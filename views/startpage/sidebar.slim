@@ -1,0 +1,9 @@
+#sidebar
+    h1 Velkommen
+    == slim :"common/sidebar_info"
+    -if @current_user
+        h2 coola subs:
+        ul
+            - for sub in @sublist
+                li
+                    a href="/l/#{sub.name}"= sub.name

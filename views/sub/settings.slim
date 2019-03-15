@@ -1,0 +1,16 @@
+#settings  
+    form action=@path method="get"
+        input type="text" name="search" placeholder="search name"
+        button type="submit" sök
+    - if @result
+        - if @result.empty?
+            h2 No users found, please try again!
+        - else
+            form action="#{@path}/addmod" method="post"
+                select name="modsel"
+                    - for user in @result
+                        option value=user.id = user.uname
+                button type="submit" Mod selected user
+    .mods
+        
+==slim :'common/sidebar'

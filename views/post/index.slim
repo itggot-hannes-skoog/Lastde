@@ -19,11 +19,19 @@
                 .votes
                     span= @post.upvotes
                     span= @post.downvotes
-        a href="/l/#{@post.sub_name}"= @post.sub_name
         h1= @post.title
-        h3= @post.author
-        h4= @post.timestamp
+        a href="/u/#{@post.author}"
+            h3= @post.author
         p= @post.textbody
+        - if @current_user
+            - if @current_user.uname == @post.author
+                form action="/l/#{@post.sub_name}/#{@post.uuid}/edit" method="get"
+                    button type="submit"
+                        i class="material-icons" edit
+            - if @current_user.uname == @post.author || @current_user.mod
+                form action="/l/#{@post.sub_name}/#{@post.uuid}/delete" method="post"
+                    button type="submit"
+                        i class="material-icons" delete
     .comments
         - if @current_user
             form#new-comment action="/l/#{@post.sub_name}/#{@post.uuid}/newcomment" method="post"
@@ -56,5 +64,6 @@
                             span= comment.downvotes
                 p= comment.textbody
                 h4= comment.timestamp
-                h4= comment.author
-==slim :'common/sidebar'
+                a href="/u/#{comment.author}"
+                    h4= comment.author
+==slim :'post/sidebar'

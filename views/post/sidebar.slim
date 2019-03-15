@@ -1,0 +1,10 @@
+#sidebar
+	h2 Cool post va
+    h4 Sub:
+    a href="/l/#{@post.sub_name}"= @post.sub_name
+    h4 Author:
+    a href="/u/#{@post.author}"= @post.author
+    h4 Posted:
+    p= @post.timestamp
+
+    == slim :"common/sidebar_info"

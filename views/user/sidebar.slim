@@ -1,0 +1,10 @@
+#sidebar
+	h2 Profile
+    -if !@mods.empty?
+        h3 Mod
+        ul
+            -for mod in @mods
+                li
+                    a href="/l/#{mod.name}"= mod.name
+
+    == slim :"common/sidebar_info"
