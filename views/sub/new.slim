@@ -1,6 +1,7 @@
 main
 	form action="/l/new" method="post"
-		== styled_flash
+		- if flash[:error]
+			.error = flash[:error]
 		label for="name" Name:
 		input type="text" name="name" id="name"
-		button type="submit" skicka
+		button type="submit" Create

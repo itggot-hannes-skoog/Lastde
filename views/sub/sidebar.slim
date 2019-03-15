@@ -1,17 +1,45 @@
 #sidebar
 	-if @current_user
 		aside#subinfo
-			h1.subname= @sub.name.upcase
-			h2= @sub.regdate
-			-if @sub.subscribed
-				form action="/l/#{@sub.name}/unsubscribe" method="post"
+			h1.subname= @sub[0].name.upcase
+			h2= @sub[0].regdate
+			h2 Author: #{@sub[0].author}
+			-if @sub[0].subscribed
+				form action="/l/#{@sub[0].name}/unsubscribe" method="post"
 					button type="submit" Unsubscribe
 			-else
-				form action="/l/#{@sub.name}/subscribe" method="post"
+				form action="/l/#{@sub[0].name}/subscribe" method="post"
 					button type="submit" Subscribe
+		- if @current_user.uname == @sub[0].author
+			h2 authorstuffs
+			a href="/l/#{@sub[0].name}/settings" Settings panel
+			h3 Mods
+			ul
+				- for mod in @mods
+					li
+						a href="/u/#{mod.uname}"= mod.uname
+		- elsif @current_user.mod
+			h2 modstuffs
+			h3 Mods
+			ul
+				- for mod in @mods
+					li
+						a href="/u/#{mod.uname}"= mod.uname
+		- else
+			h3 Mods
+			ul
+				- for mod in @mods
+					li
+						a href="/u/#{mod.uname}"= mod.uname
 	-else
 		aside#subinfo
-			h1.subname= @sub.name.upcase
-			h2= @sub.regdate
+			h1.subname= @sub[0].name.upcase
+			h2= @sub[0].regdate
+			h2 Author: #{@sub[0].author}
+			h3 Mods
+			ul
+				- for mod in @mods
+					li
+						a href="/u/#{mod.uname}"= mod.uname
 
 	== slim :"common/sidebar_info"

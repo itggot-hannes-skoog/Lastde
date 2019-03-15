@@ -3,3 +3,12 @@ a href="/"
     .sub-list
         - for sub in @subs
             a.sub href="/l/#{sub.name}"= sub.name
+    - if @current_user
+        .userstuff
+            .profile
+                a href="/u/#{@current_user.uname}"
+                    h2= @current_user.uname
+                    img src="/img/#{@current_user.img}.jpg" alt="profile picture"
+            .logout
+                form action="/logout" method="post"
+                    button type="submit" Log Out

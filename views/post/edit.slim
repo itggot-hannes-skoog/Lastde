@@ -1,0 +1,8 @@
+.editpost
+    h1= @post.title
+    form#new-post action='/l/#{@post.sub_name}/#{@post.uuid}/edit' method='post' enctype='multipart/form-data'
+        label for="text" Text:
+        textarea.text required=true name="textbody" form="new-post" value=@post.textbody
+        button type="submit" Post
+
+== slim :"common/sidebar"
